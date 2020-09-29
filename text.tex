@@ -1,5 +1,54 @@
 \section{Introduction}
 
+The current approach to building data analysis applications is 
+dominated by languages like Python, R, and, to some extent, Julia.
+All of these languages can be considered as general-purpose; e.g. it is easy
+to build a web server in Julia, and less so in R, but also possible.
+This generality calls for factorizing implementation of various tasks into 
+library code, as well as gives vast freedom as to which languages
+features to employ when building applications. This clearly has downsides.
+
+General-purpose languages take the libraries-based approach to tackle 
+data processing (e.g. Pandas in Python, dplyr in R, DataTables in Julia).
+Such libraries pose the challenge of learning the APIs with many possible 
+caveats and subtle differences between each other.
+Another common issue with this approach is tracking changes in
+the APIs ones (e.g. functions receiving new parameters, becoming deprecated,
+etc.). 
+
+Imperative features of the said languages, especially unchecked mutation
+of the global state, may hinder understanding of a script and the grounds
+of its validity, which may lead to subtle errors. Bugs in data science 
+scripts are a topic of recent studies and can have a profound impact on
+the modern society (consider, for example, a recent study of bugs in COVID-19
+related software~\cite{bugscovid}).
+
+Both of these issues concerning general-purpose languages when applied to
+data analysis tasks can be resolved by the employment of a declarative 
+domain-specific language built for this kind of tasks.
+As a bonus, a significantly special-purposed DSL shall
+allow efficient compilation to a robust application~--- something that
+has been an issue with languages like Python and R for decades. 
+On the the down side, a declarative interface would lack support
+for inherently imperative tasks (e.g. file system manipulation).
+This can be resolved by embedding the DSL into a general-purpose 
+language.
+
+In this paper, we showcase a commercial implementation of Datalog
+embedded in Julia, called Delve, that checks all the above boxes: it is declarative,
+has virtually zero amount of API vocabulary needed to apply it,
+and it can resort to the efficient JIT compiler of Julia for the tasks
+not amenable for declarative processing. Delve's backend is build on solid 
+foundations of database systems.
+
+We consider a data analysis application we call Truck Factor.
+Two implementations are suggested, using Delve and R. We compare them
+along various axes. First, linguistics: how much of code is required,
+how many notions a programmer need to learn to build such implementation.
+Second, performance and scalability: we consider a spectrum from 
+toy loads to the ones not fitting in computer RAM.
+
+
 
 \section{Truck Factor}
 
