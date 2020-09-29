@@ -14,7 +14,7 @@
 
 \begin{document}
 %
-\title{Embedded Datalog for Data Analysis in Julia}
+\title{Using Julia-Embedded Datalog for Data Analysis}
 %
 %\titlerunning{Abbreviated paper title}
 % If the paper title is too long for the running head, you can set
@@ -35,10 +35,35 @@ Second Author\inst{1}%\orcidID{1111-2222-3333-4444}
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-The abstract should briefly summarize the contents of the paper in
-150--250 words.
+The current approach to building data analysis applications is 
+dominated by languages like Python, R, and, to some extent, Julia: 
+high-level imperative languages with thorough support for the typical 
+data processing tasks by the way of libraries. Imperative features like 
+mutation may hinder understanding of a script and its validity, while
+libraries pose the challenge of learning new APIs and track changes in
+the old ones. Both of these issues can be resolved by the employment of 
+a declarative domain-specific language built for data manipulation. 
+As a bonus, a significantly special-purposed DSL shall
+allow efficient compilation to a robust application~--- something that 
+has been an issue with languages like Python and R for decades. The
+only issue with a declarative interface would be the lack of support 
+for inherently imperative tasks (e.g. file system manipulation), which, 
+we argue, can be resolved by embedding the DSL into a general-purpose 
+language.
 
-\keywords{First keyword  \and Second keyword \and Another keyword.}
+In this paper, we showcase a commercial implementation of Datalog
+embedded in Julia, called Delve, that checks all the above boxes: it is declarative,
+has virtually zero amount of API vocabulary needed to apply it,
+and can resort to the efficient JIT compiler of Julia for the tasks
+not amenable for declarative processing. We consider two implementations
+of a data processing application, using Delve and R, and compare them
+along various axes, most notably linguistics and performance.
+
+
+%The abstract should briefly summarize the contents of the paper in
+%150--250 words.
+
+\keywords{Datalog  \and Julia \and R \and embedded languages.}
 \end{abstract}
 %
 %
