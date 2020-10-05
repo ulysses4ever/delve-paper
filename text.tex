@@ -48,11 +48,55 @@ how many notions a programmer need to learn to build such implementation.
 Second, performance and scalability: we consider a spectrum from 
 toy loads to the ones not fitting in computer RAM.
 
-
-
 \section{Truck Factor}
 
+For a case study, we aimed at a just-above-toy application having to 
+do with data analysis. To this end, we picked a task of computing the 
+truck factor (also known as bus factor) of a software repository 
+roughly following the methodology of~\cite{tf} including the 
+degree-of-authorship formula~\cite{doa} as the basis of the metric. 
+We did not aim to reproduce results~\cite{tf} 
+especially because their dataset of 133 GitHub repositories is insufficient
+for our purposes: to make any conclusion performance-wise, we needed
+thousands of repositores.
+
+\subsection{Dataset}
+
+We use open source projects hosted on GitHub and using Git as their 
+version control history. The history, or metadata, is what analysis
+uses as the input with the caveat that it works with CSV-formatted 
+tables instead of binary Git-objects. In order to convert the latter 
+to the former we use an auxiliary tool called
+GhGrabber\footnote{\url{https://github.com/PRL-PRG/ghgrabber}}.
+
 \subsection{Algorithm}
+
+The purpose of the algorithm is to establish the number of a project
+(i.e. software repository) contributors who ``authors'' at least half of
+the source files. The degree-of-authorship of a file $f$ (represented
+by a path $f_p$)
+for a developer $d$ (mapped to a GitHub identity $m_d$)
+is determined using the following formula~\cite{tf}:
+\begin{multline}
+\DOA(m_d, f_p) =
+  3.293 + \\
+  1.098\times \FA(m_d, f_p) +
+  0.164\times \DL(m_d, f_p) - \\
+  0.321\times \ln(1 + \AC(m_d, f_p)).
+\end{multline}
+Here, first authorship (FA) is $1$ if $m_d$ originally created $f$, and 
+otherwise it is $0$; number of deliveries ($\DL$): number of changes in $f$
+made by $m_d$; finally, number of acceptances ($\AC$): number of 
+changes in $f$ made by any developer, except $m_d$. The coefficients
+are picked up empirically~\cite{doa}.
+
+The high-level structure of the algorithm is: (i) for every project 
+source file and every developer touched that file compute the three 
+parameters mentioned above ($\FA$, $\DL$, $\AC$) and the final metric ($\DOA$);
+(ii) for every file, pick its developer with the maximum $\DOA$ as the file's
+author; (iii) sort developers in decreasing order by the number of files 
+they author and count how many of the ``top'' developers author at least
+half of files.
 
 \subsection{R implementation}
 
