@@ -1,71 +1,71 @@
 \section{Introduction}
 
-The current approach to building data analysis applications is 
+The current approach to building data analysis applications is
 dominated by languages like Python, R, and, to some extent, Julia.
 All of these languages can be considered as general-purpose; e.g. it is easy
 to build a web server in Julia, and less so in R, but also possible.
-This generality calls for factorizing implementation of various tasks into 
+This generality calls for factorizing implementation of various tasks into
 library code, as well as gives vast freedom as to which languages
 features to employ when building applications. This clearly has downsides.
 
-General-purpose languages take the libraries-based approach to tackle 
+General-purpose languages take the libraries-based approach to tackle
 data processing (e.g. Pandas in Python, dplyr in R, DataTables in Julia).
-Such libraries pose the challenge of learning the APIs with many possible 
+Such libraries pose the challenge of learning the APIs with many possible
 caveats and subtle differences between each other.
 Another common issue with this approach is tracking changes in
 the APIs ones (e.g. functions receiving new parameters, becoming deprecated,
-etc.). 
+etc.).
 
 Imperative features of the said languages, especially unchecked mutation
 of the global state, may hinder understanding of a script and the grounds
-of its validity, which may lead to subtle errors. Bugs in data science 
+of its validity, which may lead to subtle errors. Bugs in data science
 scripts are a topic of recent studies and can have a profound impact on
 the modern society (consider, for example, a recent study of bugs in COVID-19
 related software~\cite{bugscovid}).
 
 Both of these issues concerning general-purpose languages when applied to
-data analysis tasks can be resolved by the employment of a declarative 
+data analysis tasks can be resolved by the employment of a declarative
 domain-specific language built for this kind of tasks.
 As a bonus, a significantly special-purposed DSL shall
 allow efficient compilation to a robust application~--- something that
-has been an issue with languages like Python and R for decades. 
+has been an issue with languages like Python and R for decades.
 On the the down side, a declarative interface would lack support
 for inherently imperative tasks (e.g. file system manipulation).
-This can be resolved by embedding the DSL into a general-purpose 
+This can be resolved by embedding the DSL into a general-purpose
 language.
 
 In this paper, we showcase a commercial implementation of Datalog
 embedded in Julia, called Delve, that checks all the above boxes: it is declarative,
 has virtually zero amount of API vocabulary needed to apply it,
 and it can resort to the efficient JIT compiler of Julia for the tasks
-not amenable for declarative processing. Delve's backend is build on solid 
+not amenable for declarative processing. Delve's backend is build on solid
 foundations of database systems.
 
 We consider a data analysis application we call Truck Factor.
 Two implementations are suggested, using Delve and R. We compare them
 along various axes. First, linguistics: how much of code is required,
 how many notions a programmer need to learn to build such implementation.
-Second, performance and scalability: we consider a spectrum from 
+Second, performance and scalability: we consider a spectrum from
 toy loads to the ones not fitting in computer RAM.
 
 \section{Truck Factor}
 
-For a case study, we aimed at a just-above-toy application having to 
-do with data analysis. To this end, we picked a task of computing the 
-truck factor (also known as bus factor) of a software repository 
-roughly following the methodology of~\cite{tf} including the 
-degree-of-authorship formula~\cite{doa} as the basis of the metric. 
-We did not aim to reproduce results~\cite{tf} 
+For a case study, we aimed at a just-above-toy application having to
+do with data analysis. To this end, we picked a task of computing the
+truck factor (also known as bus factor) of a software repository
+roughly following the methodology of~\cite{tf} including the
+degree-of-authorship formula~\cite{doa} as the basis of the metric.
+We did not aim to reproduce results~\cite{tf}
 especially because their dataset of 133 GitHub repositories is insufficient
 for our purposes: to make any conclusion performance-wise, we needed
 thousands of repositores.
 
 \subsection{Dataset}
 
-We use open source projects hosted on GitHub and using Git as their 
+We use open source projects hosted on GitHub and using Git as their
 version control history. The history, or metadata, is what analysis
-uses as the input with the caveat that it works with CSV-formatted 
-tables instead of binary Git-objects. In order to convert the latter 
+uses as the input with the caveat that it works with CSV-formatted
+tables instead of binary Git-objects. In order to convert the latter
 to the former we use an auxiliary tool called
 GhGrabber\footnote{\url{https://github.com/PRL-PRG/ghgrabber}}.
 
@@ -84,24 +84,52 @@ is determined using the following formula~\cite{tf}:
   0.164\times \DL(m_d, f_p) - \\
   0.321\times \ln(1 + \AC(m_d, f_p)).
 \end{multline}
-Here, first authorship (FA) is $1$ if $m_d$ originally created $f$, and 
+Here, first authorship (FA) is $1$ if $m_d$ originally created $f$, and
 otherwise it is $0$; number of deliveries ($\DL$): number of changes in $f$
-made by $m_d$; finally, number of acceptances ($\AC$): number of 
-changes in $f$ made by any developer, except $m_d$. The coefficients
+made by $m_d$; finally, number of acceptances ($\AC$): number of
+contributions in $f$ made by any developer, except $m_d$. The coefficients
 are picked up empirically~\cite{doa}.
 
-The high-level structure of the algorithm is: (i) for every project 
-source file and every developer touched that file compute the three 
+The high-level structure of the algorithm is as follows: (i) for every project
+source file and every developer touched that file compute the three
 parameters mentioned above ($\FA$, $\DL$, $\AC$) and the final metric ($\DOA$);
 (ii) for every file, pick its developer with the maximum $\DOA$ as the file's
-author; (iii) sort developers in decreasing order by the number of files 
+author; (iii) sort developers in decreasing order by the number of files
 they author and count how many of the ``top'' developers author at least
 half of files.
 
 \subsection{R implementation}
 
+As the basis for the R implementation of the algorithm we use a popular high-level
+pipeline-oriented DSL \dplyr\footnote{%
+\url{https://dplyr.tidyverse.org/}%
+}. It provides a set of combinators (called ``verbs'' in the documentation)
+familiar from SQL and some other relational-programming languages, for instance:
+\texttt{select},
+\texttt{filter},
+\texttt{summarise},
+\texttt{arrange}.
+
+Here is an example of \dplyr in action for computing the number of contributions
+(measured as number of commits that touched the file, according to Git) by individual
+developers~--- this is useful for computing the $\AC$ metric mentioned above:
+\begin{verbatim}
+  main %>%
+    group_by(uid,author) %>%
+    summarize(n=n()) ->
+    contributions
+\end{verbatim}
+The \m{main} table consists of records of contributions that various developers
+submitted to files in various projects.
+We generate unique global identifiers (\m{uid}'s) for every file in the
+dataset of projects in advance. Probably, the most confusing part of \dplyr's
+syntax here is the \m{n()} function: it counts the number of elements in the
+group, and the result is written down in the column conventionally named \m{n}
+too. The result of this pipeline is stored in a new table called \m{contributions}.
+
+
 \subsection{Delve implementation}
 
-\section {Discussion}
+\section{Evaluation}
 
 \section{Conclusion}
