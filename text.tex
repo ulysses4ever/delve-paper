@@ -130,6 +130,32 @@ too. The result of this pipeline is stored in a new table called \m{contribution
 
 \subsection{Delve implementation}
 
+Delve is a Datalog implemented as a Julia package. The frontend is standalone,
+so a Delve program has to be written in a separate file (or in a string literal in a Julia
+source file) and passed to the \m{query\_delve} function in the Julia space.
+The backend, on the other hand, is tightly integrated with the Julia runtime, so
+the computed result comes out as a collection of plain Julia objects. Which one can
+manipulate in a Julia program (e.g. print to the console or to a CSV file).
+
+The computing the number of contributions example from the previous subsection
+is expressed as follows in Delve:
+\begin{verbatim}
+  def contributions = uid author contribution :
+    main(uid,_,author,_,_,_) and
+    (count[hash: main(uid,hash,author,_,_,_)])(contribution)
+\end{verbatim}
+Here, \m{def} is a keyword signaling that we are about to define a new relation
+(\m{contributions} in this case). The relation will have three components
+listed between \m{=} and \m{:}~--- \m{uid}, \m{author}, and \m{contribution}.
+After the colon we provide a formula for the new relation. The \m{uid},
+\m{author} components should participate in the \m{main} relation. For every
+such values we compute the the value of \m{contribution} using the auxiliary
+\m{count} combinator. The input to \m{count} is a relation (in this case it is
+defined inline): it has one column \m{hash} and every row is the hash
+identifier of a commit authored by the \m{author} and touching the file
+\m{uid}. Th output of \m{count} is again a relation but having just one row
+with one field indicating the number of rows in the input relation.
+
 \section{Evaluation}
 
 \section{Conclusion}
