@@ -5,32 +5,31 @@ dominated by languages like Python, R, and, to some extent, Julia.
 All of these languages can be considered as general-purpose; e.g. it is easy
 to build a web server in Julia, and less so in R, but also possible.
 This generality calls for factorizing implementation of various tasks into
-library code, as well as gives vast freedom as to which languages
+library code, as well as gives vast freedom as to which language
 features to employ when building applications. This clearly has downsides.
 
 General-purpose languages take the libraries-based approach to tackle
-data processing (e.g. Pandas in Python, dplyr in R, DataTables in Julia).
+data processing (e.g. Pandas in Python, \dplyr in R, DataTables in Julia).
 Such libraries pose the challenge of learning the APIs with many possible
 caveats and subtle differences between each other.
-Another common issue with this approach is tracking changes in
-the APIs ones (e.g. functions receiving new parameters, becoming deprecated,
-etc.).
+Another common issue with this approach is tracking changes in APIs, e.g.
+functions receive new parameters, become deprecated, etc.
 
 Imperative features of the said languages, especially unchecked mutation
 of the global state, may hinder understanding of a script and the grounds
-of its validity, which may lead to subtle errors. Bugs in data science
-scripts are a topic of recent studies and can have a profound impact on
-the modern society (consider, for example, a recent study of bugs in COVID-19
-related software~\cite{bugscovid}).
+of its validity. This often leads to subtle errors, and bugs in data science
+scripts are a topic of many recent studies
+(consider, for example, a recent study of bugs in COVID-19 related software~\cite{bugscovid}).
 
-Both of these issues concerning general-purpose languages when applied to
-data analysis tasks can be resolved by the employment of a declarative
-domain-specific language built for this kind of tasks.
+In the area of data analysis,
+both of the issues (the API-based approach and imperative features)
+can be avoided by employment of a declarative
+domain-specific language targeted at this particular kind of tasks.
 As a bonus, a significantly special-purposed DSL shall
 allow efficient compilation to a robust application~--- something that
 has been an issue with languages like Python and R for decades.
 On the the down side, a declarative interface would lack support
-for inherently imperative tasks (e.g. file system manipulation).
+for inherently imperative tasks faced by data analysts  (e.g. file system manipulation).
 This can be resolved by embedding the DSL into a general-purpose
 language.
 
@@ -43,8 +42,9 @@ foundations of database systems.
 
 We consider a data analysis application we call Truck Factor.
 Two implementations are suggested, using Delve and R. We compare them
-along various axes. First, linguistics: how much of code is required,
-how many notions a programmer need to learn to build such implementation.
+along two axes. First, linguistics: how much of code is required,
+how much of ``external'' vocabulary (the one not concerned with the particular
+application) a programmer need to learn to build such implementation.
 Second, performance and scalability: we consider a spectrum from
 toy loads to the ones not fitting in computer RAM.
 
@@ -58,7 +58,9 @@ degree-of-authorship formula~\cite{doa} as the basis of the metric.
 We did not aim to reproduce results~\cite{tf}
 especially because their dataset of 133 GitHub repositories is insufficient
 for our purposes: to make any conclusion performance-wise, we needed
-thousands of repositores.
+thousands of repositores. In this section we discuss data format we work with,
+the algorithm to compute the truck factor, and representative code snippets
+from both implementations, in R and in Delve.
 
 \subsection{Dataset}
 
@@ -68,13 +70,14 @@ uses as the input with the caveat that it works with CSV-formatted
 tables instead of binary Git-objects. In order to convert the latter
 to the former we use an auxiliary tool called
 GhGrabber\footnote{\url{https://github.com/PRL-PRG/ghgrabber}}.
+We do not analyze the source code itself.
 
 \subsection{Algorithm}
 
 The purpose of the algorithm is to establish the number of a project
 (i.e. software repository) contributors who ``authors'' at least half of
 the source files. The degree-of-authorship of a file $f$ (represented
-by a path $f_p$)
+by a filepath $f_p$)
 for a developer $d$ (mapped to a GitHub identity $m_d$)
 is determined using the following formula~\cite{tf}:
 \begin{multline}
@@ -84,9 +87,9 @@ is determined using the following formula~\cite{tf}:
   0.164\times \DL(m_d, f_p) - \\
   0.321\times \ln(1 + \AC(m_d, f_p)).
 \end{multline}
-Here, first authorship (FA) is $1$ if $m_d$ originally created $f$, and
-otherwise it is $0$; number of deliveries ($\DL$): number of changes in $f$
-made by $m_d$; finally, number of acceptances ($\AC$): number of
+Here, first authorship (FA) is $1$ if $m_d$ originally created $f$~---
+otherwise it is $0$; number of deliveries ($\DL$): the number of changes in $f$
+made by $m_d$; finally, number of acceptances ($\AC$): the number of
 contributions in $f$ made by any developer, except $m_d$. The coefficients
 are picked up empirically~\cite{doa}.
 
@@ -104,14 +107,15 @@ As the basis for the R implementation of the algorithm we use a popular high-lev
 pipeline-oriented DSL \dplyr\footnote{%
 \url{https://dplyr.tidyverse.org/}%
 }. It provides a set of combinators (called ``verbs'' in the documentation)
-familiar from SQL and some other relational-programming languages, for instance:
+familiar from SQL and some other relational-programming languages. Among those
+combinators:
 \texttt{select},
 \texttt{filter},
-\texttt{summarise},
-\texttt{arrange}.
+\texttt{arrange},
+\texttt{summarise}.
 
 Here is an example of \dplyr in action for computing the number of contributions
-(measured as number of commits that touched the file, according to Git) by individual
+(measured as the number of commits that touched the file, according to Git) by individual
 developers~--- this is useful for computing the $\AC$ metric mentioned above:
 \begin{verbatim}
   main %>%
@@ -134,11 +138,12 @@ Delve is a Datalog implemented as a Julia package. The frontend is standalone,
 so a Delve program has to be written in a separate file (or in a string literal in a Julia
 source file) and passed to the \m{query\_delve} function in the Julia space.
 The backend, on the other hand, is tightly integrated with the Julia runtime, so
-the computed result comes out as a collection of plain Julia objects. Which one can
-manipulate in a Julia program (e.g. print to the console or to a CSV file).
+the computed result comes out as a collection of plain Julia objects. Therefore,
+the outputs can be post-processed in a Julia program
+(e.g. printed to the console or to a CSV file).
 
-The computing the number of contributions example from the previous subsection
-is expressed as follows in Delve:
+The example from the previous subsection (computing the number of contributions)
+is expressed in Delve as follows:
 \begin{verbatim}
   def contributions = uid author contribution :
     main(uid,_,author,_,_,_) and
@@ -146,16 +151,97 @@ is expressed as follows in Delve:
 \end{verbatim}
 Here, \m{def} is a keyword signaling that we are about to define a new relation
 (\m{contributions} in this case). The relation will have three components
-listed between \m{=} and \m{:}~--- \m{uid}, \m{author}, and \m{contribution}.
-After the colon we provide a formula for the new relation. The \m{uid},
+listed between \m{=} and \m{:}, namely \m{uid}, \m{author}, and \m{contribution}.
+After the colon we provide a formula for the new relation. The \m{uid} and
 \m{author} components should participate in the \m{main} relation. For every
-such values we compute the the value of \m{contribution} using the auxiliary
+such values we compute the value of \m{contribution} using the auxiliary
 \m{count} combinator. The input to \m{count} is a relation (in this case it is
 defined inline): it has one column \m{hash} and every row is the hash
 identifier of a commit authored by the \m{author} and touching the file
-\m{uid}. Th output of \m{count} is again a relation but having just one row
+identified by \m{uid}. Th output of \m{count} is again a relation but having just one row
 with one field indicating the number of rows in the input relation.
 
 \section{Evaluation}
 
+When trying to compare different implementations of the same algorithm, there
+are several possible view points. Two important ones are linguistic parameters
+and performance.
+
+\subsection{Linguistics}
+
+Table~\ref{tab1-lingua} compares linguistics of both implementations modulo data
+loading. The number of lines is similar, which is important because line count
+is one of the primary measures of code size.
+
+What stands out in Table~\ref{tab1-lingua} is the word count for Delve: the
+corresponding implementation is far wordier than the one in R. But if we look
+at the number of unique words, it is a parity again~---just as with the line count.
+
+There is an important difference in the distribution of unique words though.
+In particular, among the top five most-frequent words in the Delve
+implementation three are the column names; the other two are \m{def} and \m{and}.
+In contrast, for the R implementation, among the five top words: two are the
+names specific to the \dplyr vocabulary, (\m{group\_by}, \m{summarize}), another two
+are application-specific (\m{doa}, \m{uid}), and the last one is somewhere in
+between: it is \m{n}~--- the name of a \dplyr function, as well as the column name
+that we use to store results of calls to this function.
+
+\begin{table}
+\setlength{\tabcolsep}{12pt}
+\caption{Linguistic characteristics of both implementations.}\label{tab1-lingua}
+\centering
+\begin{tabular}{lcc}
+\toprule
+              &  R      & Delve \\
+\midrule
+Lines         & 107     & 116\\
+Words         & 277     & 450\\
+Unique Words  &  77     & 79 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% TODO: add table for top 5 unique words
+Another interesting metric of vocabulary diversity is distribution of
+words frequencies.
+Occurrences of five most-frequent words in Delve implementation account
+for 42\% of all words.
+For R, this metric is 21\%~---exactly two times less than for Delve! This
+shows that a Delve programmer most of the time thinks about the data representation,
+whereas an R programmer needs to care about various parts of the API simultaneously
+with application-specific identifiers.
+
+\subsection{Performance}
+
+Delve is a Datalog implementation with the focus on performance and large-scale
+applications, whereas it was never a strong suit for R. We performed several
+experiments that mostly proved this observation with the caveat that for tiny
+datasets R managed to outperform Delve a bit. This can be explained by
+overhead of a full-fledged database back-end employed by Delve.
+
+In particular, on a set of 20 projects (20 Mb) R took 2.2 seconds for computations,
+while Delve required 4.7 seconds. In contrast, on a set of 1000 projects (254 Mb)
+R runs for 38 seconds, while Delve finishes in 14 seconds.
+
+Delve authors advertise its ability to handle larger-than-RAM dataset
+transparently. R has several packages that attempt to provide the same ability
+but this is much less explored space for this language. We haven't studied
+performance of our implementations at this scale, although it could be an
+interesting future work.
+
 \section{Conclusion}
+
+Over-talkative API of \dplyr and uncontrolled mutation available in R bit us
+several times during this work. For instance, certain \dplyr functions changed
+interface slightly even during not-so-long period of time of this work, so we
+had to adjust. The ability to mutate tables served as a source of subtle bugs:
+an updated instance of a table was used sometimes when the original one was expected.
+
+In comparison, working with Delve, although requiring a good
+amount of typing, is free from these issue and much easier to read after some
+break~--- most likely, because it speaks in application-specific terms as
+opposed to API-specific. With industrial-strength compilers such as Delve, we
+conclude that Datalog should be seriously considered as a tool for tasks in
+data analysis.
+
+

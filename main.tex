@@ -12,6 +12,8 @@
 % to display URLs in blue roman font according to Springer's eBook style:
 %\renewcommand\UrlFont{\color{blue}\rmfamily}
 
+\usepackage{booktabs}
+
 \usepackage{amsmath}
 \DeclareMathOperator{\DOA}{DOA}
 \DeclareMathOperator{\FA}{FA}
@@ -24,19 +26,20 @@
 
 \begin{document}
 %
-\title{Using Julia-Embedded Datalog for Data Analysis}
+\title{Exploring Datalog for Modern Data Analysis}
+\subtitle{(Application paper)}
 %
 %\titlerunning{Abbreviated paper title}
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
 \author{%
-First Author\inst{1}%\orcidID{0000-1111-2222-3333}
-\and
-Second Author\inst{1}%\orcidID{1111-2222-3333-4444}
+Artem Pelenitsyn%\inst{1}%\orcidID{0000-1111-2222-3333}
+%\and
+%Second Author\inst{1}%\orcidID{1111-2222-3333-4444}
 }
 %
-\authorrunning{F. Author et al.}
+\authorrunning{A. Pelenitsyn}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
@@ -45,29 +48,17 @@ Second Author\inst{1}%\orcidID{1111-2222-3333-4444}
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-The current approach to building data analysis applications is
-dominated by languages like Python, R, and, to some extent, Julia:
-high-level imperative languages with thorough support for the typical
-data processing tasks by the way of libraries. Imperative features like
-mutation may hinder understanding of a script and its validity, while
-libraries pose the challenge of learning new APIs and track changes in
-the old ones. Both of these issues can be resolved by the employment of
-a declarative domain-specific language built for data manipulation.
-As a bonus, a significantly special-purposed DSL shall
-allow efficient compilation to a robust application~--- something that
-has been an issue with languages like Python and R for decades. The
-only issue with a declarative interface would be the lack of support
-for inherently imperative tasks (e.g. file system manipulation), which,
-we argue, can be resolved by embedding the DSL into a general-purpose
-language.
-
-In this paper, we showcase a commercial implementation of Datalog
-embedded in Julia, called Delve, that checks all the above boxes: it is declarative,
-has virtually zero amount of API vocabulary needed to apply it,
-and can resort to the efficient JIT compiler of Julia for the tasks
-not amenable for declarative processing. We consider two implementations
-of a data processing application, using Delve and R, and compare them
-along various axes, most notably linguistics and performance.
+The current approach to building data analysis applications is dominated by
+imperative languages armed with robust libraries for typical data processing
+tasks. Both, imperative features and APIs pose well-known challenges that can
+be avoided if a declarative domain-specific language for data manipulation is
+employed. In this paper, we showcase a commercial implementation of Datalog
+embedded in Julia, called Delve, that have a number of plummy features: it is
+declarative, has virtually zero amount of API vocabulary required to apply it,
+and can resort to the efficient JIT compiler of Julia for the tasks not
+amenable for declarative processing. We discuss two implementations of a data
+processing application, using Delve and R, and compare them along two axes:
+linguistics and performance.
 
 
 %The abstract should briefly summarize the contents of the paper in
