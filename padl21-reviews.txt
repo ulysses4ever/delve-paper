@@ -1,0 +1,217 @@
+SUBMISSION: 21
+TITLE: Exploring Datalog for Modern Data Analysis (Application paper)
+
+
+----------------------- REVIEW 1 ---------------------
+SUBMISSION: 21
+TITLE: Exploring Datalog for Modern Data Analysis (Application paper)
+AUTHORS: Artem Pelenitsyn
+
+----------- Overall evaluation -----------
+SCORE: -2 (reject)
+----- TEXT:
+This paper compares DSL in R and a DSL in Julia in one task, computing the Truck
+factor, also known as Bus factor, of many open source projects.
+
+The comparison is along two dimensions, “linguistics” and performance.
+
+The “linguistic” dimension is fairly superficial (lines of code, number words,
+number of unique words), though there is an interesting implication in comparing
+the number of words to the number of unique words in terms of thinking about data
+representation vs API and application-specific identifiers.
+
+All in all, I didn’t get much out of reading the paper. Sure, a simple
+data-driven computation can be done in two different DSLs hosted by distinct
+languages, but so what? I think the paper could expand on desideratas such as
+application-specific vs API-specific. It could perhaps also provide more of an
+in-depth look at the DSL in Julia, and why it is praised so much.
+
+Minor suggestions for improvements
+
+abstract: “Both, imperative features and APIs pose” missing comma before pose or
+remove comma after Both
+
+abstract: “called Delve, that have a number of plummy features:” -> that _has_
+
+p. 1: “as well as gives vast” -> as well as _giving_ vast
+
+p. 1: “between each other” between each of them?
+
+p. 2: “the one not concerned” -> the _part_ not concerned
+
+p. 2: “ to the ones not fitting” -> to ones not fitting
+
+p. 2: “we discuss data format” -> we discuss _the_ data format
+
+p. 2: “what analysis” -> what _the_ analysis
+
+p. 3: “every developer touched” every developer _that_ touched
+
+p. 4: “Th output” Th_e_ output
+----------- Reviewer's confidence -----------
+SCORE: 3 ((medium))
+
+
+
+----------------------- REVIEW 2 ---------------------
+SUBMISSION: 21
+TITLE: Exploring Datalog for Modern Data Analysis (Application paper)
+AUTHORS: Artem Pelenitsyn
+
+----------- Overall evaluation -----------
+SCORE: -2 (reject)
+----- TEXT:
+# Summary
+
+The paper discusses two approaches for tackling problems in data analysis: the
+"classical" imperative approach and a declarative approach.  The example
+programming language of choice for the former category is R and Delve, a Datalog
+clone implemented in Julia, for the latter category.  The running example of the
+paper is the computation of the truck factor of software repositories crawled
+from GitHub.  Both implementations of this example are analysed with respect to
+linguistics and performance.
+
+# My two cents
+
+I like the general idea of the paper: taking an area that imperative programming
+dominates and present how to enlighten that area with ideas from the declarative
+paradigm.  With that general idea, the paper fits the application category quite
+well, since I wouldn't count data analysis tasks as a classical Computer Science
+topic, but more of an application area of Computer Science.  The paper at hand
+is, however, not mature enough for acceptance.
+
+The presented application does not fall under the category "real-world
+applications", but is a rather toy example.  On the other hand the use of
+declarative concepts is not innovative enough -- the general idea is the use of a
+DSL with a handful of combinators -- to compensate this lack of complexity.
+
+My suggestion is to apply the idea to a more mature example with the benefit that
+such an example will give additional material to discuss.  The paper in its
+current form also lacks a bit more depth, which is, in my opinion, mostly
+"caused" by the toy example.
+
+# Minor comments
+
+p. 3: "Here, first authorship (FA) is 1 if md originally created f — otherwise it
+is 0; number of deliveries (DL): the number of changes in f made by md; finally,
+number of acceptances (AC): the number of contributions in f made by any
+developer, except md." - I would prefere if all functions (FA, DL, AC) are
+introduced in the same style (you switch after FA that uses a (more) inline
+description which I prefer). I found the sentence hard to right as it is.
+
+p. 3: "Among those combinators: select, filter, arrange, summarise." -> I'd
+suggest to incorporate the example with the previous sentence, as in "some other
+relational programming language, for example, select, ..."
+
+p. 3: Maybe you should add `groupBy` to your example combinators since it is used
+later on.
+
+p. 4: I'm not sure if `contribution` is an input argument or an output (as it the
+last argument of the relation); I guess it's the output determined by `count`,
+but the explanation below the code wasn't that helpful in this case. In
+particular, the part "indicating the number of rows in the input relation" didn't
+help to strengthen my intuition about relational programming here.
+
+p. 5: "In particular, on a set of 20 projects (20 Mb) R took 2.2 seconds for
+computations, while Delve required 4.7 seconds. In contrast, on a set of 1000
+projects (254 Mb) R runs for 38 seconds, while Delve finishes in 14 seconds."
+Here I'd like to see a plotted graph with more than these two values -- for the
+explanation of the plotting these two examples would still make good coordinates.
+
+p. 5: The table about the linguistic characteristics would be more appreciated if
+both implementations would be available to the reader.
+
+## Typos
+
+p. 1: "that have a number of plummy features" -> has
+p. 1: "e.g. functions receive new parameters, ..." -> e.g.,
+p. 1: "Imperatitve features of the said languages, ..." -> Imperative features
+p. 1: "Imperatitve features of the said languages, ..." -> .. of said languages
+p. 2: "In the area of data analysis, both of the issues ..." -> these issues
+p. 2: "On the the down side" -> On the downside
+p. 2: "Delve's backend is build on" -> built
+p. 2: "... a programmer need to learn" -> needs
+p. 2: "We did not aim to reproduce results [1]" -> the citation reference seems a bit odd, just leave it out here?
+p. 2: "..., we needed thousands of repositores." -> would need  / repositories
+p. 2: "In this section we discuss data format we work with, ..." -> the data format
+p. 2: "is what analysis as the input" -> is what the analysis uses as input
+p. 2: "... the number of a project (i.e. software repository) contributors who “authors”..." -> the number of project (i.e. software repository) contributors that “author”
+p. 3: "every developer touched that file" -> every developer who touched that file
+p. 3: "at least half of files" -> at least half of all files
+p. 3: "we use a popular high-level pipeline-oriented DSL dplyr" -> we use a popular high-level pipeline-oriented DSL called dplyr
+p. 3: "relational-programming languages" -> relational programming languages
+p. 3: "... the AC metric mentioned above:" -> I would add a full-stop at the end of the sentence, since you do not end your code example with one (because it would look weird ; )): ... the AC metric mentioned above.
+p. 3: summarise vs summarize as DSL combinator
+p. 3: "Delve is a Datalog implemented as a Julia package" -> Delve is an implementation of Datalog available as a Julia package?
+p. 3: "The frontend is standalone" -> stand-alone
+p. 4: "e.g. printed to the console or to a CSV file" -> e.g.,
+p. 4: "is expressed in Delve as follows:" -> as follows.
+p. 4: "Th output of count" -> The
+
+## Other suggestions
+
+p. 1: "This clearly has downsides." -> This freedom
+p. 1: "This often leads to subtle errors, ..." -> These features often lead to ... ?
+p. 2: "This can be resolved ..." -> This lack of support can be ...
+p. 3: "It provides a set of combinators" -> The DSL provides ...
+p. 3: "this is useful for computing" -> this number is ...
+p. 4: "among the five top words: two are the names specific to the dplyr vocabulary" -> among the five top words are two names specific to the dplyr vocabulary
+p. 5: "This shows that a Delve programmer" -> This difference
+p. 5: "This shows that a Delve programmer most of the time thinks about the data representation" ->  This shows that a Delve programmer thinks about the data representation most of the time,
+p. 5: "This can be explained by" -> This outlier
+p. 5: " the same ability but this is much less explored" -> but this usage is much less ... ?
+p. 5: "was used sometimes " -> was sometimes used
+p. 5: "as opposed to API- specific" -> as opposed to API-specific terms
+----------- Reviewer's confidence -----------
+SCORE: 4 ((high))
+
+
+
+----------------------- REVIEW 3 ---------------------
+SUBMISSION: 21
+TITLE: Exploring Datalog for Modern Data Analysis (Application paper)
+AUTHORS: Artem Pelenitsyn
+
+----------- Overall evaluation -----------
+SCORE: -3 (strong reject)
+----- TEXT:
+"Exploring Datalog for Modern Data Analysis" is an application paper that
+advocates for use of Datalog in place of less declarative alternatives commonly
+provided in other languages. Delve is the Datalog variant they use for this
+purpose. The paper uses an example application, "Truck Factor", to show that
+Delve is easier for programmers to use and that it performs better when compared
+to a similar library in R.
+
+The application is well-motivated. Data analysis has declarative foundations and
+yet many popular libraries rely on imperative features. Declarative languages
+such as Datalog can replace these to provide better guarantees.
+
+The paper does not have enough Delve in it. We learn that it is a Datalog variant
+embedded in Julia and see three lines of it, but that is about it. I do not think
+the paper reveals enough about Delve to properly advocate for it. I would have
+liked to see a language definition if it is a simple Datalog variant or at least
+more examples to highlight its strengths.
+
+The paper has structure issues. Despite the lack of Delve content, we see a
+detailed description of the case study which does not play a significant role in
+the rest of the paper. Overall, despite not being a long piece, the text contains
+much redundant information.
+
+The evaluation lacks rigour. First, the motivating argument about imperativeness
+is unsubstantiated. The operators used in the R library from the case study are
+from relational algebra which is a declarative formalism. Second, the linguistic
+analysis is quantitatively in favour of the R library and the one metric in
+favour of Delve (distribution of words) is not presented in the paper. Third, the
+performance measurements are stated without how they are obtained and lack
+margins of error. The abstract mentions the performance gains are due to Julia's
+JIT, but JIT is not mentioned elsewhere in the paper.
+
+As a result, despite the fact that Delve claims to address an important gap in
+Datalog applications, the paper does not show how it achieves this. I think
+rather than a performance evaluation, it can be rewritten with an extensive case
+study that highlights various features of the language which would make a
+convincing application paper.
+
+----------- Reviewer's confidence -----------
+SCORE: 5 ((expert))
+
