@@ -5,30 +5,30 @@ dominated by languages like Python, R, and, to some extent, Julia.
 All of these languages can be considered as general-purpose; e.g. it is easy
 to build a web server in Julia, and less so in R, but also possible.
 This generality calls for factorizing implementation of various tasks into
-library code, as well as gives vast freedom as to which language
+library code, as well as giving vast freedom as to which language
 features to employ when building applications. This clearly has downsides.
 
 General-purpose languages take the libraries-based approach to tackle
 data processing (e.g. Pandas in Python, \dplyr in R, DataTables in Julia).
 Such libraries pose the challenge of learning the APIs with many possible
-caveats and subtle differences between each other.
-Another common issue with this approach is tracking changes in APIs, e.g.
+caveats and subtle differences between each of them.
+Another common issue with this approach is tracking changes in APIs, e.g.,
 functions receive new parameters, become deprecated, etc.
 
-Imperative features of the said languages, especially unchecked mutation
+Imperative features of said languages, especially unchecked mutation
 of the global state, may hinder understanding of a script and the grounds
 of its validity. This often leads to subtle errors, and bugs in data science
 scripts are a topic of many recent studies
 (consider, for example, a recent study of bugs in COVID-19 related software~\cite{bugscovid}).
 
 In the area of data analysis,
-both of the issues (the API-based approach and imperative features)
+both these issues (the API-based approach and imperative features)
 can be avoided by employment of a declarative
 domain-specific language targeted at this particular kind of tasks.
 As a bonus, a significantly special-purposed DSL shall
 allow efficient compilation to a robust application~--- something that
 has been an issue with languages like Python and R for decades.
-On the the down side, a declarative interface would lack support
+On the downside, a declarative interface would lack support
 for inherently imperative tasks faced by data analysts  (e.g. file system manipulation).
 This can be resolved by embedding the DSL into a general-purpose
 language.
@@ -37,16 +37,16 @@ In this paper, we showcase a commercial implementation of Datalog
 embedded in Julia, called Delve, that checks all the above boxes: it is declarative,
 has virtually zero amount of API vocabulary needed to apply it,
 and it can resort to the efficient JIT compiler of Julia for the tasks
-not amenable for declarative processing. Delve's backend is build on solid
+not amenable for declarative processing. Delve's backend is built on solid
 foundations of database systems.
 
 We consider a data analysis application we call Truck Factor.
 Two implementations are suggested, using Delve and R. We compare them
 along two axes. First, linguistics: how much of code is required,
-how much of ``external'' vocabulary (the one not concerned with the particular
-application) a programmer need to learn to build such implementation.
+how much of ``external'' vocabulary not concerned with the particular
+application a programmer needs to learn to build such implementation.
 Second, performance and scalability: we consider a spectrum from
-toy loads to the ones not fitting in computer RAM.
+toy loads to ones not fitting in computer RAM.
 
 \section{Truck Factor}
 
@@ -55,17 +55,17 @@ do with data analysis. To this end, we picked a task of computing the
 truck factor (also known as bus factor) of a software repository
 roughly following the methodology of~\cite{tf} including the
 degree-of-authorship formula~\cite{doa} as the basis of the metric.
-We did not aim to reproduce results~\cite{tf}
+We did not aim to reproduce results
 especially because their dataset of 133 GitHub repositories is insufficient
-for our purposes: to make any conclusion performance-wise, we needed
-thousands of repositores. In this section we discuss data format we work with,
+for our purposes: to make any conclusion performance-wise, we would needed
+thousands of repositories. In this section we discuss the data format we work with,
 the algorithm to compute the truck factor, and representative code snippets
 from both implementations, in R and in Delve.
 
 \subsection{Dataset}
 
 We use open source projects hosted on GitHub and using Git as their
-version control history. The history, or metadata, is what analysis
+version control history. The history, or metadata, is what the analysis
 uses as the input with the caveat that it works with CSV-formatted
 tables instead of binary Git-objects. In order to convert the latter
 to the former we use an auxiliary tool called
@@ -94,7 +94,7 @@ contributions in $f$ made by any developer, except $m_d$. The coefficients
 are picked up empirically~\cite{doa}.
 
 The high-level structure of the algorithm is as follows: (i) for every project
-source file and every developer touched that file compute the three
+source file and every developer who touched that file compute the three
 parameters mentioned above ($\FA$, $\DL$, $\AC$) and the final metric ($\DOA$);
 (ii) for every file, pick its developer with the maximum $\DOA$ as the file's
 author; (iii) sort developers in decreasing order by the number of files
@@ -158,7 +158,7 @@ such values we compute the value of \m{contribution} using the auxiliary
 \m{count} combinator. The input to \m{count} is a relation (in this case it is
 defined inline): it has one column \m{hash} and every row is the hash
 identifier of a commit authored by the \m{author} and touching the file
-identified by \m{uid}. Th output of \m{count} is again a relation but having just one row
+identified by \m{uid}. The output of \m{count} is again a relation but having just one row
 with one field indicating the number of rows in the input relation.
 
 \section{Evaluation}
